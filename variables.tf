@@ -13,7 +13,7 @@ variable "cluster_iam_role_arn" {
 }
 
 variable "vpc_cidr_block" {
-  description = "CODR block for VPC."
+  description = "CIDR block for VPC."
   type        = string
 }
 variable "subnet_count" {
