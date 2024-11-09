@@ -23,5 +23,8 @@ variable "subnet_count" {
     condition     = var.subnet_count > 0
     error_message = "At least one public and private subnet must be created."
   }
-  #   TODO: add validation that the number does not exceed the number of available AZs.
+  validation {
+    condition     = length(data.aws_availability_zones.names)
+    error_message = "Not enough availability zones are available in the selected region."
+  }
 }
