@@ -1,6 +1,10 @@
-variable "cluster_subnets" {
-  description = "Subnets in which EKs will be deployed"
-  type        = list(string)
+variable "public_subnet_ids" {
+  description = "Public subnets for EKS"
+  type        = set(string)
+}
+variable "private_subnet_ids" {
+  description = "Private subnets for EKS"
+  type        = set(string)
 }
 
 variable "cluster_name" {
@@ -16,4 +20,19 @@ variable "support_type" {
     condition     = contains(["EXTENDED", "STANDARD"], var.support_type)
     error_message = "Invalid value"
   }
+}
+
+variable "fargate_profiles" {
+  description = "List of fargate profiles to be created."
+  type = list(object({
+    name = string
+    selectors = list(object({
+      namespace = optional(string)
+      labels    = optional(map(string))
+    }))
+  }))
+  default = []
+  # TODO add name uniqueness validation
+  # TODO add validation for selector's contents
+  # TODO require at least one selector for each profile
 }
