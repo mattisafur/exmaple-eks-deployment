@@ -12,6 +12,12 @@ variable "cluster_name" {
   type        = string
 }
 
+variable "cluster_role_name" {
+  description = "IAM role to be used by the cluster"
+  type = string
+  default = "AmazonEKSAutoClusterRole"
+}
+
 variable "support_type" {
   description = "Kubernetes cluster support type. can be set to EXTENDED or STANDARD."
   type        = string
@@ -25,7 +31,8 @@ variable "support_type" {
 variable "fargate_profiles" {
   description = "List of fargate profiles to be created."
   type = list(object({
-    name = string
+    name                    = string
+    pod_execution_role_name = optional(string)
     selectors = list(object({
       namespace = optional(string)
       labels    = optional(map(string))
