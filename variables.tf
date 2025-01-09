@@ -5,12 +5,10 @@ variable "cluster_name" {
 variable "public_subnet_ids" {
   type    = set(string)
   default = []
-  # TODO validation: at least one subnet (public or private) is defined
 }
 variable "private_subnet_ids" {
   type    = set(string)
   default = []
-  # TODO validation: at least one subnet (public or private) is defined
 }
 
 variable "additional_cluster_security_group_ids" {
@@ -34,7 +32,7 @@ variable "support_type" {
 
   validation {
     condition     = contains(["STANDARD", "EXTENDED"], var.support_type)
-    error_message = "Support type must be STANDARD or EXTENDED"
+    error_message = "Support type must be STANDARD or EXTENDED."
   }
 }
 
@@ -52,8 +50,18 @@ variable "fargate_profiles" {
     }))
   }))
   default = []
-  # TODO validation (needed?): make sure name is unique
-  # TODO validation: if subnet_ids not defined, at least one private subnet is define in var.private_subnet_ids
+
+  validation {
+    condition     = length(distinct([for profile in var.fargate_profiles : profile.name])) == length(var.fargate_profiles)
+    error_message = "Each fargate profile name must be unique."
+  }
+  validation {
+    condition = alltrue([
+      for profile in var.fargate_profiles :
+      profile.subnet_ids != null || length(var.private_subnet_ids) > 1
+    ])
+    error_message = "If subnet_id is not defined in a fargate profile, at least one private subnet must be defined in private_subnet_ids."
+  }
 }
 
 variable "node_groups" {
@@ -70,5 +78,9 @@ variable "node_groups" {
     node_role_name = optional(string)
   }))
   default = []
-  # TODO validation (needed?): make sure name is unique
+
+  validation {
+    condition     = length(distinct([for group in var.node_groups : group.name])) == length(var.node_groups)
+    error_message = "Each node group name must be unique."
+  }
 }
