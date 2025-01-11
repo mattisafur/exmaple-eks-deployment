@@ -22,6 +22,7 @@ resource "aws_eks_cluster" "cluster" {
 
   version = var.kubernetes_version
   tags    = merge(var.global_cluster_tags, var.cluster_tags)
+  enabled_cluster_log_types = var.cluster_log_types
 
   vpc_config {
     subnet_ids = setunion(var.public_subnet_ids, var.private_subnet_ids)

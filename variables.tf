@@ -31,6 +31,19 @@ variable "kubernetes_version" {
   default = null
 }
 
+variable "cluster_log_types" {
+  type    = set(string)
+  default = []
+
+  validation {
+    condition = alltrue([
+      for log_type in var.cluster_log_types :
+      contains(["api", "audit", "authenticator", "controllerManager", "scheduler"], log_type)
+    ])
+    error_message = "The log types supported by AWS are api, audit, authenticator, controllerManager and scheduler"
+  }
+}
+
 variable "support_type" {
   type    = string
   default = "EXTENDED"
