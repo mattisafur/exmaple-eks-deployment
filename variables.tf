@@ -1,3 +1,8 @@
+variable "global_cluster_tags" {
+  type    = map(string)
+  default = {}
+}
+
 variable "cluster_name" {
   type = string
 }
@@ -38,18 +43,28 @@ variable "support_type" {
   }
 }
 
+variable "zonal_shift" {
+  type    = bool
+  default = false
+}
+
+variable "cluster_tags" {
+  type = map(string)
+}
+
 variable "fargate_profiles" {
   type = set(object({
     name = string
-
-    pod_execution_role_name = optional(string)
-    subnet_ids              = optional(set(string))
 
     selectors = set(object({
       namespace = string
 
       labels = optional(map(string))
     }))
+
+    pod_execution_role_name = optional(string)
+    subnet_ids              = optional(set(string))
+    tags                    = optional(map(string))
   }))
   default = []
   # TODO validation (needed?): make sure name is unique
@@ -68,6 +83,7 @@ variable "node_groups" {
     })
 
     node_role_name = optional(string)
+    tags           = optional(map(string))
   }))
   default = []
   # TODO validation (needed?): make sure name is unique
