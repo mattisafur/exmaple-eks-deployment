@@ -7,6 +7,13 @@ terraform {
   }
 }
 
+check "subnet_validation" {
+  assert {
+    condition = length(var.public_subnet_ids) > 0 || length(var.private_subnet_ids) > 0
+    error_message = "You must define at least one subnet (public or private)"
+  }
+}
+
 data "aws_caller_identity" "identity" {}
 
 resource "aws_eks_cluster" "cluster" {
