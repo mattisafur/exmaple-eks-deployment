@@ -14,6 +14,7 @@ resource "aws_eks_cluster" "cluster" {
   role_arn = "arn:aws:iam::${data.aws_caller_identity.identity.account_id}:role/${var.cluster_role_name}"
 
   version = var.kubernetes_version
+  tags    = merge(var.global_cluster_tags, var.cluster_tags)
 
   vpc_config {
     subnet_ids = setunion(var.public_subnet_ids, var.private_subnet_ids)
@@ -23,6 +24,10 @@ resource "aws_eks_cluster" "cluster" {
 
   upgrade_policy {
     support_type = var.support_type
+  }
+
+  zonal_shift_config {
+    enabled = var.zonal_shift
   }
 }
 
@@ -34,6 +39,8 @@ resource "aws_eks_fargate_profile" "fargate_profiles" {
   fargate_profile_name   = each.value.name
   pod_execution_role_arn = "arn:aws:iam::${data.aws_caller_identity.identity.account_id}:role/${coalesce(each.value.pod_execution_role_name, "AmazonEKSFargatePodExecutionRole")}"
   subnet_ids             = coalesce(each.value.subnet_ids, var.private_subnet_ids)
+
+  tags = merge(var.global_cluster_tags, each.value.tags)
 
   dynamic "selector" {
     for_each = each.value.selectors
@@ -53,6 +60,8 @@ resource "aws_eks_node_group" "node_groups" {
   node_group_name = each.value.name
   node_role_arn   = "arn:aws:iam::${data.aws_caller_identity.identity.account_id}:role/${coalesce(each.value.node_role_name, "AmazonEKSNodeRole")}"
   subnet_ids      = each.value.subnet_ids
+
+  tags = merge(var.global_cluster_tags, each.value.tags)
 
   scaling_config {
     desired_size = each.value.scaling_config.desired_size
